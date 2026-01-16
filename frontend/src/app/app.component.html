@@ -1,0 +1,19 @@
+<mat-toolbar color="primary" class="app-toolbar">
+  <button mat-icon-button routerLink="/">
+    <mat-icon>dashboard</mat-icon>
+  </button>
+  <span class="app-title">{{ title }}</span>
+  <span class="spacer"></span>
+  <button mat-button routerLink="/dashboard" routerLinkActive="active-link">
+    <mat-icon>dashboard</mat-icon>
+    Dashboard
+  </button>
+  <button mat-button routerLink="/plates" routerLinkActive="active-link">
+    <mat-icon>list</mat-icon>
+    Plates
+  </button>
+</mat-toolbar>
+
+<div class="content">
+  <router-outlet></router-outlet>
+</div>

@@ -1,0 +1,123 @@
+.control-card {
+  max-width: 600px;
+  margin: 20px auto;
+
+  mat-card-header {
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 500;
+
+      mat-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+      }
+    }
+  }
+
+  mat-card-content {
+    padding: 24px;
+  }
+}
+
+.status-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f5f5f5;
+  border-radius: 8px;
+
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+    }
+
+    .status-text {
+      font-weight: 600;
+      font-size: 20px;
+    }
+
+    .pid-text {
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.54);
+    }
+  }
+
+  .loading-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    color: rgba(0, 0, 0, 0.54);
+  }
+}
+
+.source-section {
+  margin-bottom: 24px;
+
+  .source-select {
+    width: 100%;
+  }
+}
+
+.button-section {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  .control-button {
+    flex: 1;
+    height: 48px;
+    font-size: 16px;
+    font-weight: 500;
+
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+.info-section {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: #e3f2fd;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+
+  mat-icon {
+    color: #2196f3;
+    flex-shrink: 0;
+  }
+
+  .info-text {
+    flex: 1;
+
+    p {
+      margin: 0;
+      color: rgba(0, 0, 0, 0.87);
+      line-height: 1.5;
+    }
+  }
+}
+
+::ng-deep {
+  .success-snackbar {
+    background-color: #4caf50 !important;
+    color: white !important;
+  }
+
+  .error-snackbar {
+    background-color: #f44336 !important;
+    color: white !important;
+  }
+}

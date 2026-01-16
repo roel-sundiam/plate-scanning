@@ -1,0 +1,77 @@
+<mat-card class="control-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>videocam</mat-icon>
+      Detection Service Control
+    </mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <!-- Status Display -->
+    <div class="status-section">
+      <div class="status-indicator">
+        <mat-icon [style.color]="getStatusColor()">{{ getStatusIcon() }}</mat-icon>
+        <span class="status-text" [style.color]="getStatusColor()">
+          {{ getStatusText() }}
+        </span>
+        <span *ngIf="status?.pid" class="pid-text">(PID: {{ status?.pid }})</span>
+      </div>
+
+      <div *ngIf="loading" class="loading-indicator">
+        <mat-spinner diameter="20"></mat-spinner>
+        <span>Processing...</span>
+      </div>
+    </div>
+
+    <!-- Camera Source Selection -->
+    <div class="source-section">
+      <mat-form-field appearance="outline" class="source-select">
+        <mat-label>Camera Source</mat-label>
+        <mat-select [(ngModel)]="selectedSource" [disabled]="status?.isRunning || loading">
+          <mat-option *ngFor="let source of sources" [value]="source.value">
+            {{ source.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Control Buttons -->
+    <div class="button-section">
+      <button 
+        mat-raised-button 
+        color="primary" 
+        [disabled]="!canStart()"
+        (click)="startDetection()"
+        class="control-button">
+        <mat-icon>play_arrow</mat-icon>
+        Start Detection
+      </button>
+
+      <button 
+        mat-raised-button 
+        color="warn" 
+        [disabled]="!canStop()"
+        (click)="stopDetection()"
+        class="control-button">
+        <mat-icon>stop</mat-icon>
+        Stop Detection
+      </button>
+    </div>
+
+    <!-- Info Section -->
+    <div class="info-section">
+      <mat-icon>info</mat-icon>
+      <div class="info-text">
+        <p *ngIf="status?.status === 'stopped'">
+          Click "Start Detection" to begin processing video from the selected camera source.
+        </p>
+        <p *ngIf="status?.status === 'running'">
+          Detection is active. Detected plates will appear in the dashboard automatically.
+        </p>
+        <p *ngIf="status?.status === 'starting' || status?.status === 'stopping'">
+          Please wait...
+        </p>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

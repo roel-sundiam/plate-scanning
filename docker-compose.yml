@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: lp_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: license_plates
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - license_plate_network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lp_backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MONGODB_URI=mongodb://mongodb:27017/license_plates
+      - DUPLICATE_WINDOW=60
+      - IMAGE_STORAGE_PATH=/app/uploads
+    volumes:
+      - ./backend/uploads:/app/uploads
+    depends_on:
+      - mongodb
+    networks:
+      - license_plate_network
+
+  # Python Detection Service
+  python-service:
+    build:
+      context: ./python-service
+      dockerfile: Dockerfile
+    container_name: lp_python_service
+    restart: unless-stopped
+    environment:
+      - API_URL=http://backend:3000/api/plates
+      - IPHONE_URL=http://192.168.1.100:4747/video
+      - GATE_IDENTIFIER=gate_01
+      - CONFIDENCE_THRESHOLD=0.5
+      - DUPLICATE_WINDOW_SECONDS=60
+      - SAVE_SNAPSHOTS=true
+    volumes:
+      - ./python-service/snapshots:/app/snapshots
+    depends_on:
+      - backend
+    networks:
+      - license_plate_network
+    # Uncomment if you need GPU support
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  # Frontend Dashboard
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: lp_frontend
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - license_plate_network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  license_plate_network:
+    driver: bridge
