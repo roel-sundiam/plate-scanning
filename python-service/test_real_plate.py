@@ -5,23 +5,21 @@ import os
 import time
 import numpy as np
 import requests
+import sys
 from dotenv import load_dotenv
 
 load_dotenv()
 
 # Configuration
-# Try multiple DroidCam URL formats
-IPHONE_IP = "192.168.68.101"
-IPHONE_URLS = [
-    f"http://{IPHONE_IP}:4747/video",
-    f"http://{IPHONE_IP}:4747/mjpegfeed",
-    f"http://{IPHONE_IP}:4747/cam/1/stream",
-]
-TESSERACT_CMD = os.getenv("TESSERACT_CMD", r"C:\Users\sundi\AppData\Local\Programs\Tesseract-OCR\tesseract.exe")
+TESSERACT_CMD = os.getenv("TESSERACT_CMD", r"C:\\Users\\sundi\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe")
 pytesseract.pytesseract.tesseract_cmd = TESSERACT_CMD
 
 API_URL = os.getenv("API_URL", "http://localhost:3000/api/plates")
 GATE_ID = os.getenv("GATE_IDENTIFIER", "gate_01")
+VIDEO_SOURCE = os.getenv("VIDEO_SOURCE")  # Can be RTSP URL, video file, or webcam index
+
+# Example public RTSP stream (for testing):
+# VIDEO_SOURCE=rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov
 
 def find_plate_regions(frame):
     """Find rectangular regions that might be license plates"""
@@ -87,54 +85,32 @@ def extract_plate_text(plate_img):
 
 def main():
     print("=" * 60)
-    print("Real License Plate Detection - iPhone via iVCam")
+    print("Real License Plate Detection - RTSP/Webcam/Video")
     print("=" * 60)
-    
-    # Try webcam devices (iVCam appears as webcam)
-    cap = None
-    camera_index = None
-    
-    for i in range(3):
-        print(f"Trying camera {i}...")
-        test_cap = cv2.VideoCapture(i)
-        time.sleep(0.5)
-        
-        if test_cap.isOpened():
-            ret, frame = test_cap.read()
-            if ret and frame is not None:
-                # Check resolution to identify iVCam (usually higher res)
-                print(f"  Camera {i}: {frame.shape[1]}x{frame.shape[0]}")
-                if camera_index is None or frame.shape[1] >= 640:
-                    if cap:
-                        cap.release()
-                    cap = test_cap
-                    camera_index = i
-                else:
-                    test_cap.release()
-            else:
-                test_cap.release()
-        else:
-            if test_cap:
-                test_cap.release()
-    
-    if camera_index is None:
-        print("[ERROR] Cannot connect to any camera")
-        print("\nMake sure:")
-        print("  1. iVCam PC client is running")
-        print("  2. iVCam app is open on your iPhone")
-        print("  3. iPhone and PC are connected")
+
+    # Allow video source from command-line, .env, or fallback to webcam
+    source = None
+    if len(sys.argv) > 1:
+        source = sys.argv[1]
+    elif VIDEO_SOURCE:
+        source = VIDEO_SOURCE
+    else:
+        source = 0  # Default to webcam 0
+
+    print(f"[INFO] Using video source: {source}")
+    cap = cv2.VideoCapture(source)
+    time.sleep(1)
+    if not cap.isOpened():
+        print(f"[ERROR] Cannot open video source: {source}")
         return
-    
-    print(f"[OK] Connected to Camera {camera_index}!")
+
+    print("[OK] Video source opened!")
     print("\n" + "=" * 60)
     print("INSTRUCTIONS:")
     print("=" * 60)
-    print("1. Point your iPhone at an ACTUAL license plate")
-    print("2. Get close enough so the plate is clearly visible")
-    print("3. Hold steady for 2-3 seconds")
-    print("4. The plate should fill a good portion of the screen")
-    print("5. Make sure there's good lighting")
-    print("6. Press 'q' in the video window to quit")
+    print("- If using RTSP, make sure the camera is online and accessible.")
+    print("- If using webcam, point at a real plate or test image.")
+    print("- Press 'q' in the video window to quit.")
     print("=" * 60)
     print("\nLooking for license plates...\n")
     

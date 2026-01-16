@@ -72,3 +72,6 @@ data/
 *.pt
 *.onnx
 !models/.gitkeep
+
+# Local Netlify folder
+.netlify
